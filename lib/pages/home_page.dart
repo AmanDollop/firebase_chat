@@ -25,7 +25,14 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
+        automaticallyImplyLeading: false,
         title: const Text("My Chat App"),
+        /*actions: [
+          CircleAvatar(
+            backgroundImage: NetworkImage('https://burst.shopifycdn.com/photos/hand-holding-in-love.jpg?width=1200&format=pjpg&exif=1&iptc=1'),
+          ),
+          SizedBox(width: 15)
+        ],*/
       ),
       body: SafeArea(
         child: StreamBuilder(
@@ -95,6 +102,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                   height: 1,
                                   child: Divider(
                                     thickness: 1,
+                                    indent: 12,
+                                    endIndent: 12,
                                     color: Colors.grey,
                                   ),
                                 ),
@@ -130,13 +139,39 @@ class _MyHomePageState extends State<MyHomePage> {
           },
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return SearchPage(userModel: widget.userModel, firebaseUser: widget.firebaseUser);
-          }));
-        },
-        child: const Icon(Icons.search),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(left: 30),
+            child: FloatingActionButton(
+              heroTag: 0,
+              onPressed: () async {
+                await FirebaseAuth.instance.signOut();
+                // ignore: use_build_context_synchronously
+                Navigator.popUntil(context, (route) => route.isFirst);
+                // ignore: use_build_context_synchronously
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) {
+                    return const LoginPage();
+                  }),
+                );
+              },
+              child: const Icon(Icons.logout),
+            ),
+          ),
+          FloatingActionButton(
+            heroTag: 0,
+            onPressed: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return SearchPage(userModel: widget.userModel, firebaseUser: widget.firebaseUser);
+              }));
+            },
+            child: const Icon(Icons.search),
+          ),
+
+        ],
       ),
     );
   }
