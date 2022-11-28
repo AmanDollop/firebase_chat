@@ -5,8 +5,10 @@ import 'package:firebase_chat/modals/chat_room_modal.dart';
 import 'package:firebase_chat/modals/firebase_helper.dart';
 import 'package:firebase_chat/modals/userModel.dart';
 import 'package:firebase_chat/pages/chat_room_page.dart';
+import 'package:firebase_chat/pages/profile.dart';
 import 'package:firebase_chat/pages/search_page.dart';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 
 class MyHomePage extends StatefulWidget {
   final UserModel userModel;
@@ -29,8 +31,7 @@ class _MyHomePageState extends State<MyHomePage> {
           StreamBuilder(
             stream: FirebaseFirestore.instance
                 .collection("chatrooms")
-                .where("participants.${widget.userModel.uid}",
-                    isEqualTo: true)
+                .where("participants.${widget.userModel.uid}", isEqualTo: true)
                 .snapshots(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.active) {
@@ -66,12 +67,14 @@ class _MyHomePageState extends State<MyHomePage> {
 
                                   return Padding(
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 10,vertical: 5),
+                                        horizontal: 10, vertical: 5),
                                     child: ListTile(
                                       shape: RoundedRectangleBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(5),
-                                      ),
+                                          borderRadius:
+                                              BorderRadius.circular(5),
+                                          side: const BorderSide(
+                                              width: 2,
+                                              color: Colors.tealAccent)),
                                       tileColor: Theme.of(context)
                                           .colorScheme
                                           .onBackground
@@ -79,26 +82,49 @@ class _MyHomePageState extends State<MyHomePage> {
                                       onTap: () {
                                         Navigator.push(
                                           context,
-                                          MaterialPageRoute(
-                                              builder: (context) {
+                                          MaterialPageRoute(builder: (context) {
                                             return ChatRoomPage(
                                               chatroom: chatRoomModel,
-                                              firebaseUser:
-                                                  widget.firebaseUser,
+                                              firebaseUser: widget.firebaseUser,
                                               userModel: widget.userModel,
                                               targetUser: targetUser,
                                             );
                                           }),
                                         );
                                       },
-                                      leading: CircleAvatar(
-                                        backgroundImage: NetworkImage(
-                                            targetUser.profilepic.toString()),
+                                      leading: InkWell(
+                                        onTap: () {
+                                          showDialog(
+                                            builder: (context) => AlertDialog(
+                                              title: Image(
+                                                image: NetworkImage(
+                                                  targetUser.profilepic
+                                                      .toString(),
+                                                ),
+                                              ),
+                                            ),
+                                            useRootNavigator: false,
+                                            context: context,
+                                          );
+                                        },
+                                        child: SizedBox(
+                                          height: 55,
+                                          width: 55,
+                                          child: CircleAvatar(
+                                            backgroundImage: NetworkImage(
+                                                targetUser.profilepic
+                                                    .toString()),
+                                          ),
+                                        ),
                                       ),
                                       title: Text(
                                         targetUser.fullname.toString(),
                                         style: const TextStyle(
-                                            color: Colors.white),
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600,
+                                          fontStyle: FontStyle.italic,
+                                        ),
                                       ),
                                       subtitle: (chatRoomModel.lastMessage
                                                   .toString() !=
@@ -157,10 +183,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget myCustomContainer(
-      {bool isSearchActive = false,
-      bool isClicked = true,
-      bool isSearch = true,
-      required BuildContext context}) {
+      {required BuildContext context, UserModel? userModel}) {
     return ClipRRect(
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
@@ -179,17 +202,42 @@ class _MyHomePageState extends State<MyHomePage> {
                       flex: 4,
                       child: Row(
                         children: [
-                          appLogo(),
+                          SizedBox(
+                            height: 50,
+                            width: 50,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(20),
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) {
+                                      return ProfilePage(
+                                          userModel: widget.userModel,
+                                          firebaseUser: widget.firebaseUser);
+                                    },
+                                  ),
+                                );
+                              },
+                              child: CircleAvatar(
+                                backgroundImage: NetworkImage(
+                                    widget.userModel.profilepic.toString()),
+                              ),
+                            ),
+                          ),
                           const SizedBox(width: 10),
                           userWelcomeText(context: context),
                         ],
                       ),
                     ),
+                    appLogo(),
                   ],
                 ),
               ),
               const Expanded(child: SizedBox.shrink()),
-              searchTextFieldButton(context: context, isSearch: isSearch),
+              searchTextFieldButton(
+                context: context,
+              ),
               const Expanded(
                 child: SizedBox.shrink(),
               ),
@@ -231,14 +279,19 @@ class _MyHomePageState extends State<MyHomePage> {
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: const [
+      children: [
         Text(
-          "Jay Gupta",
+          widget.userModel.fullname.toString(),
           overflow: TextOverflow.ellipsis,
           maxLines: 1,
-          style: TextStyle(color: Colors.white),
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.w800,
+            fontStyle: FontStyle.italic,
+          ),
         ),
-        Text(
+        const Text(
           "Welcome Back!",
           overflow: TextOverflow.ellipsis,
           maxLines: 1,
@@ -254,16 +307,14 @@ class _MyHomePageState extends State<MyHomePage> {
       width: 50,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25),
-        image: const DecorationImage(
-            image: NetworkImage(
-                "https://cdn4.vectorstock.com/i/1000x1000/98/03/chat-app-icon-template-mobile-application-icon-vector-20839803.jpg"),
-            fit: BoxFit.fill),
       ),
+      child: LottieBuilder.network('https://raw.githubusercontent.com/xvrh/lottie-flutter/master/example/assets/Mobilo/A.json',repeat: true),
     );
   }
 
-  Widget searchTextFieldButton(
-      {required BuildContext context, required bool isSearch}) {
+  Widget searchTextFieldButton({
+    required BuildContext context,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(left: 21, right: 22),
       child: Theme.of(context).brightness == Brightness.light
@@ -310,7 +361,8 @@ class _MyHomePageState extends State<MyHomePage> {
                               flex: 7,
                               child: Text(
                                 "Search",
-                                style: TextStyle(color: Colors.grey,fontSize: 12),
+                                style:
+                                    TextStyle(color: Colors.grey, fontSize: 12),
                               ),
                             ),
                           ],

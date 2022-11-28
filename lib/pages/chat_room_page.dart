@@ -5,6 +5,7 @@ import 'package:firebase_chat/main.dart';
 import 'package:firebase_chat/modals/chat_room_modal.dart';
 import 'package:firebase_chat/modals/mssegae_modal.dart';
 import 'package:firebase_chat/modals/userModel.dart';
+import 'package:firebase_chat/pages/targetUserProfileView.dart';
 import 'package:flutter/material.dart';
 
 class ChatRoomPage extends StatefulWidget {
@@ -65,206 +66,305 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
       backgroundColor: Colors.black.withOpacity(.2),
       body: Stack(
         children: [
-          Stack(
-            children: [
-              SafeArea(
-                child: Column(
-                  children: [
-                    Container(
-                      height: 60,
-                      decoration: const BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Color(0xFFFBAD33),
-                            Color(0xFFF2653A),
-                          ],
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          Material(
-                            color: Colors.transparent,
-                            child: IconButton(
-                              splashRadius: 25,
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                icon: const Icon(
-                                  Icons.arrow_left,
-                                  color: Colors.white,
-                                  size: 30,
-                                )),
-                          ),
-                          const SizedBox(width: 8),
-                          CircleAvatar(
-                            backgroundColor: Colors.grey[300],
-                            backgroundImage: NetworkImage(
-                                widget.targetUser.profilepic.toString()),
-                          ),
-                          const SizedBox(width: 16),
-                          Text(
-                            widget.targetUser.fullname.toString(),
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600),
-                          ),
+          SafeArea(
+            child: Column(
+              children: [
+                InkWell(
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(
+                      builder: (context) {
+
+                        return  TargetUserProfileView(targetUser: widget.targetUser,);
+                      },
+                    ));
+                  },
+                  child: Container(
+                    height: 60,
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Color(0xFFFBAD33),
+                          Color(0xFFF2653A),
                         ],
                       ),
                     ),
-                    Expanded(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10),
-                        child: StreamBuilder(
-                          stream: FirebaseFirestore.instance
-                              .collection("chatrooms")
-                              .doc(widget.chatroom.chatroomid)
-                              .collection("messages")
-                              .orderBy("createdon", descending: true)
-                              .snapshots(),
-                          builder: (context, snapshot) {
-                            if (snapshot.connectionState ==
-                                ConnectionState.active) {
-                              if (snapshot.hasData) {
-                                QuerySnapshot dataSnapshot =
-                                    snapshot.data as QuerySnapshot;
+                    child: Row(
+                      children: [
+                        Material(
+                          color: Colors.transparent,
+                          child: IconButton(
+                              splashRadius: 25,
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              icon: const Icon(
+                                Icons.arrow_left,
+                                color: Colors.white,
+                                size: 30,
+                              )),
+                        ),
+                        const SizedBox(width: 8),
+                        CircleAvatar(
+                          backgroundColor: Colors.grey[300],
+                          backgroundImage: NetworkImage(
+                              widget.targetUser.profilepic.toString()),
+                        ),
+                        const SizedBox(width: 16),
+                        Text(
+                          widget.targetUser.fullname.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w800,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: StreamBuilder(
+                      stream: FirebaseFirestore.instance
+                          .collection("chatrooms")
+                          .doc(widget.chatroom.chatroomid)
+                          .collection("messages")
+                          .orderBy("createdon", descending: true)
+                          .snapshots(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.active) {
+                          if (snapshot.hasData) {
+                            QuerySnapshot dataSnapshot =
+                                snapshot.data as QuerySnapshot;
 
-                                return ListView.builder(
-                                  reverse: true,
-                                  itemCount: dataSnapshot.docs.length,
-                                  itemBuilder: (context, index) {
-                                    MessageModel currentMessage =
-                                        MessageModel.fromMap(
-                                            dataSnapshot.docs[index].data()
-                                                as Map<String, dynamic>);
+                            return ListView.builder(
+                              reverse: true,
+                              itemCount: dataSnapshot.docs.length,
+                              itemBuilder: (context, index) {
+                                MessageModel currentMessage =
+                                    MessageModel.fromMap(
+                                        dataSnapshot.docs[index].data()
+                                            as Map<String, dynamic>);
 
-                                    return Column(
+                                return Column(
+                                  children: [
+                                    const SizedBox(height: 10),
+                                    Row(
+                                      mainAxisAlignment:
+                                          (currentMessage.sender ==
+                                                  widget.userModel.uid)
+                                              ? MainAxisAlignment.end
+                                              : MainAxisAlignment.start,
                                       children: [
-                                        const SizedBox(height: 10),
-                                        Row(
-                                          mainAxisAlignment:
-                                              (currentMessage.sender ==
-                                                      widget.userModel.uid)
-                                                  ? MainAxisAlignment.end
-                                                  : MainAxisAlignment.start,
-                                          children: [
-                                            currentMessage.sender ==
-                                                    widget.userModel.uid
-                                                ? Container(
-                                                    margin:
-                                                        const EdgeInsets.symmetric(
-                                                      vertical: 2,
-                                                    ),
-                                                    padding:
-                                                        const EdgeInsets.symmetric(
-                                                      vertical: 10,
-                                                      horizontal: 10,
-                                                    ),
-                                                    decoration: const BoxDecoration(
-                                                      borderRadius:
-                                                          BorderRadius.only(
-                                                        topLeft:
-                                                            Radius.circular(6),
-                                                        topRight:
-                                                            Radius.circular(6),
-                                                        bottomLeft:
-                                                            Radius.circular(6),
+                                        currentMessage.sender ==
+                                                widget.userModel.uid
+                                            ? Container(
+                                                margin: const EdgeInsets
+                                                    .symmetric(
+                                                  vertical: 2,
+                                                ),
+                                                padding: const EdgeInsets
+                                                    .symmetric(
+                                                  vertical: 10,
+                                                  horizontal: 10,
+                                                ),
+                                                decoration:
+                                                    const BoxDecoration(
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                    topLeft:
+                                                        Radius.circular(6),
+                                                    topRight:
+                                                        Radius.circular(6),
+                                                    bottomLeft:
+                                                        Radius.circular(6),
+                                                  ),
+                                                  gradient: LinearGradient(
+                                                    colors: [
+                                                      Color(0xFFFBAD33),
+                                                      Color(0xFFF2653A),
+                                                    ],
+                                                  ),
+                                                ),
+                                                child: SizedBox(
+                                                  width: 200,
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        widget.userModel
+                                                            .fullname
+                                                            .toString(),
+                                                        style: const TextStyle(
+                                                            fontSize: 10,
+                                                            fontStyle:
+                                                                FontStyle
+                                                                    .italic,
+                                                            color: Colors
+                                                                .white),
                                                       ),
-                                                      gradient: LinearGradient(
-                                                        colors: [
-                                                          Color(0xFFFBAD33),
-                                                          Color(0xFFF2653A),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                    child: SizedBox(
-                                                      width: 200,
-                                                      child: Text(
+                                                      SizedBox(height: 5),
+                                                      Text(
                                                         currentMessage.text
                                                             .toString(),
                                                         style: const TextStyle(
-                                                          color: Colors.white,
-                                                        ),
+                                                            color: Colors
+                                                                .white,
+                                                            fontSize: 16,
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w600),
                                                       ),
-                                                    ),
-                                                  )
-                                                : Container(
-                                                    width: 200,
-                                                    margin:
-                                                        const EdgeInsets.symmetric(
-                                                      vertical: 2,
-                                                    ),
-                                                    padding:
-                                                        const EdgeInsets.symmetric(
-                                                      vertical: 10,
-                                                      horizontal: 10,
-                                                    ),
-                                                    decoration: const BoxDecoration(
-                                                      color: Colors.white,
-                                                      borderRadius:
-                                                          BorderRadius.only(
-                                                        topLeft:
-                                                            Radius.circular(6),
-                                                        topRight:
-                                                            Radius.circular(6),
-                                                        bottomRight:
-                                                            Radius.circular(6),
+                                                      SizedBox(height: 5),
+                                                      Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .end,
+                                                        children: [
+                                                          Text(
+                                                            currentMessage
+                                                                .createdon
+                                                                .toString(),
+                                                            style: const TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                                fontSize:
+                                                                    10,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600),
+                                                          ),
+                                                        ],
                                                       ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              )
+                                            : Container(
+                                                width: 200,
+                                                margin: const EdgeInsets
+                                                    .symmetric(
+                                                  vertical: 2,
+                                                ),
+                                                padding: const EdgeInsets
+                                                    .symmetric(
+                                                  vertical: 10,
+                                                  horizontal: 10,
+                                                ),
+                                                decoration:
+                                                    const BoxDecoration(
+                                                  color: Colors.white,
+                                                  borderRadius:
+                                                      BorderRadius.only(
+                                                    topLeft:
+                                                        Radius.circular(6),
+                                                    topRight:
+                                                        Radius.circular(6),
+                                                    bottomRight:
+                                                        Radius.circular(6),
+                                                  ),
+                                                ),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment
+                                                          .start,
+                                                  children: [
+                                                    Text(
+                                                      widget.targetUser
+                                                          .fullname
+                                                          .toString(),
+                                                      style: const TextStyle(
+                                                          fontSize: 10,
+                                                          fontStyle:
+                                                              FontStyle
+                                                                  .italic,
+                                                          color:
+                                                              Colors.black),
                                                     ),
-                                                    child: Text(
+                                                    SizedBox(height: 5),
+                                                    Text(
                                                       currentMessage.text
                                                           .toString(),
                                                       maxLines: 100,
                                                       style: const TextStyle(
-                                                        color: Colors.black,
-                                                      ),
+                                                          color:
+                                                              Colors.black,
+                                                          fontSize: 16,
+                                                          fontWeight:
+                                                              FontWeight
+                                                                  .w600),
                                                     ),
-                                                  ),
-                                          ],
-                                        ),
+                                                    SizedBox(height: 5),
+                                                    Row(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .end,
+                                                      children: [
+                                                        Text(
+                                                          currentMessage
+                                                              .createdon
+                                                              .toString(),
+                                                          style: const TextStyle(
+                                                              color: Colors
+                                                                  .black,
+                                                              fontSize: 10,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
                                       ],
-                                    );
-                                  },
+                                    ),
+                                  ],
                                 );
-                              } else if (snapshot.hasError) {
-                                return const Center(
-                                  child: Text(
-                                      "An error occured! Please check your internet connection."),
-                                );
-                              } else {
-                                return const Center(
-                                  child: Text("Say hi to your new friend"),
-                                );
-                              }
-                            } else {
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            }
-                          },
-                        ),
-                      ),
+                              },
+                            );
+                          } else if (snapshot.hasError) {
+                            return const Center(
+                              child: Text(
+                                  "An error occured! Please check your internet connection."),
+                            );
+                          } else {
+                            return const Center(
+                              child: Text("Say hi to your new friend"),
+                            );
+                          }
+                        } else {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+                      },
                     ),
-                    const SizedBox(height: 70),
-                  ],
-                ),
-              ),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: textField(context: context),
-                      ),
-                      sendButton(),
-                      const SizedBox(width: 12),
-                    ],
                   ),
                 ),
+                const SizedBox(height: 70),
+              ],
+            ),
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: textField(context: context),
+                  ),
+                  sendButton(),
+                  const SizedBox(width: 12),
+                ],
               ),
-            ],
+            ),
           ),
         ],
       ),

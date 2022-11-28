@@ -156,40 +156,71 @@ class _ProfilePageState extends State<ProfilePage> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Center(
-            child: ListView(
-              children: [
-                const SizedBox(height: 40),
-                CupertinoButton(
-                  padding: const EdgeInsets.all(0),
-                  onPressed: () {
-                    showPhotoOptions();
-                  },
-                  child: CircleAvatar(
+          child: Column(
+            children: [
+              const SizedBox(height: 40),
+              Stack(
+                alignment: Alignment.bottomRight,
+                children: [
+                  CircleAvatar(
                     radius: 60,
                     backgroundImage: imageFile == null
-                        ? const NetworkImage(
-                            "https://burst.shopifycdn.com/photos/hand-holding-in-love.jpg?width=1200&format=pjpg&exif=1&iptc=1")
+                        ? NetworkImage(
+                            widget.userModel.profilepic.toString())
                         : FileImage(imageFile!) as ImageProvider,
                   ),
-                ),
-                const SizedBox(height: 30),
-                TextField(
-                  controller: fullNameController,
-                  decoration: const InputDecoration(labelText: "Full Name"),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    checkValues();
-                  },
-                  child: const Text("Submit"),
-                )
-              ],
-            ),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 1),
+                    child: addIconButtonView(),
+                  )
+                ],
+              ),
+              const SizedBox(height: 30),
+              TextField(
+                controller: fullNameController,
+                decoration: const InputDecoration(labelText: "Full Name"),
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  checkValues();
+                },
+                child: const Text("Submit"),
+              )
+            ],
           ),
         ),
       ),
     );
   }
+
+  Widget addIconButtonView() => Container(
+        height: 40,
+        width: 40,
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              Color(0xFFFBAD33),
+              Color(0xFFF2653A),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(25),
+        ),
+        child: IconButton(
+          splashRadius: 20,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.transparent,
+              shadowColor: Colors.transparent,
+            ),
+            icon: const Icon(
+              Icons.camera_alt,
+              size: 20,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              showPhotoOptions();
+            }),
+      );
 }

@@ -74,7 +74,7 @@ class _SearchPageState extends State<SearchPage> {
         children: [
           SafeArea(
             child: Container(
-              padding: EdgeInsets.symmetric(
+              padding: const EdgeInsets.symmetric(
                 horizontal: 20,
                 vertical: 10,
               ),
@@ -162,24 +162,6 @@ class _SearchPageState extends State<SearchPage> {
           myCustomContainer(context: context),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: null,
-        onPressed: () async {
-          await FirebaseAuth.instance.signOut();
-          // ignore: use_build_context_synchronously
-          Navigator.popUntil(context, (route) => route.isFirst);
-          //Navigator.popUntil(context, (route) => route.isCurrent);
-          // ignore: use_build_context_synchronously
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) {
-              return const LoginPage();
-            }),
-          );
-        },
-        child: const Icon(Icons.logout),
-      ),
-
     );
   }
 
@@ -206,12 +188,20 @@ class _SearchPageState extends State<SearchPage> {
                       flex: 4,
                       child: Row(
                         children: [
-                          appLogo(),
+                          SizedBox(
+                            height: 50,
+                            width: 50,
+                            child: CircleAvatar(
+                              backgroundImage:
+                              NetworkImage(widget.userModel.profilepic.toString()),
+                            ),
+                          ),
                           const SizedBox(width: 10),
                           userWelcomeText(context: context),
                         ],
                       ),
                     ),
+                    appLogo(),
                   ],
                 ),
               ),
@@ -260,10 +250,10 @@ class _SearchPageState extends State<SearchPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Jay Gupta",
+         widget.userModel.fullname.toString(),
           overflow: TextOverflow.ellipsis,
           maxLines: 1,
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(color: Colors.white,fontSize: 20,fontWeight: FontWeight.w800,fontStyle: FontStyle.italic,),
         ),
         Text(
           "Welcome Back!",
@@ -283,7 +273,7 @@ class _SearchPageState extends State<SearchPage> {
         borderRadius: BorderRadius.circular(25),
         image: DecorationImage(
             image: NetworkImage(
-                "https://cdn4.vectorstock.com/i/1000x1000/98/03/chat-app-icon-template-mobile-application-icon-vector-20839803.jpg"),
+                "https://img.freepik.com/premium-vector/chat-app-logo-design-vector_18099-2966.jpg"),
             fit: BoxFit.fill),
       ),
     );

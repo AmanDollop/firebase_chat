@@ -72,7 +72,7 @@ class _LoginPageState extends State<LoginPage> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
       print('Log In Successful@!');
-      Navigator.pop(
+      Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) {
