@@ -1,8 +1,5 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_chat/modals/userModel.dart';
 import 'package:flutter/material.dart';
-
-import 'login.dart';
 
 class TargetUserProfileView extends StatefulWidget {
   final UserModel targetUser;
@@ -86,24 +83,17 @@ class _TargetUserProfileViewState extends State<TargetUserProfileView> {
               ),
             ),
           ),
+          const SizedBox(height: 10),
+          Text(
+            "Email : ${widget.targetUser.email}",
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.w800,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: null,
-        onPressed: () async {
-          await FirebaseAuth.instance.signOut();
-          // ignore: use_build_context_synchronously
-          Navigator.popUntil(context, (route) => route.isFirst);
-          //Navigator.popUntil(context, (route) => route.isCurrent);
-          // ignore: use_build_context_synchronously
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) {
-              return const LoginPage();
-            }),
-          );
-        },
-        child: const Icon(Icons.logout),
       ),
     );
   }

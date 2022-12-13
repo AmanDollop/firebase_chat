@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_chat/main.dart';
@@ -7,6 +8,8 @@ import 'package:firebase_chat/modals/mssegae_modal.dart';
 import 'package:firebase_chat/modals/userModel.dart';
 import 'package:firebase_chat/pages/targetUserProfileView.dart';
 import 'package:flutter/material.dart';
+import 'package:image_cropper/image_cropper.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ChatRoomPage extends StatefulWidget {
   final UserModel targetUser;
@@ -30,8 +33,11 @@ class ChatRoomPage extends StatefulWidget {
 class _ChatRoomPageState extends State<ChatRoomPage> {
   TextEditingController messageController = TextEditingController();
 
+  // File? imageFile;
+
   void sendMessage() async {
     String msg = messageController.text.trim();
+    print("object:::${messageController.text == ''}");
     messageController.clear();
 
     if (msg != "") {
@@ -51,6 +57,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
           .set(newMessage.toMap());
 
       widget.chatroom.lastMessage = msg;
+      widget.chatroom.dateTime = DateTime.now();
       FirebaseFirestore.instance
           .collection("chatrooms")
           .doc(widget.chatroom.chatroomid)
@@ -73,8 +80,9 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                   onTap: () {
                     Navigator.push(context, MaterialPageRoute(
                       builder: (context) {
-
-                        return  TargetUserProfileView(targetUser: widget.targetUser,);
+                        return TargetUserProfileView(
+                          targetUser: widget.targetUser,
+                        );
                       },
                     ));
                   },
@@ -123,6 +131,17 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                     ),
                   ),
                 ),
+                /* Container(
+                  height: 200,
+                  width: 200,
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: imageFile == null
+                          ? NetworkImage("")
+                          : FileImage(imageFile!) as ImageProvider,
+                    ),
+                  ),
+                ),*/
                 Expanded(
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -161,108 +180,164 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                                       children: [
                                         currentMessage.sender ==
                                                 widget.userModel.uid
-                                            ? Container(
-                                                margin: const EdgeInsets
-                                                    .symmetric(
-                                                  vertical: 2,
-                                                ),
-                                                padding: const EdgeInsets
-                                                    .symmetric(
-                                                  vertical: 10,
-                                                  horizontal: 10,
-                                                ),
-                                                decoration:
-                                                    const BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.only(
-                                                    topLeft:
-                                                        Radius.circular(6),
-                                                    topRight:
-                                                        Radius.circular(6),
-                                                    bottomLeft:
-                                                        Radius.circular(6),
-                                                  ),
-                                                  gradient: LinearGradient(
-                                                    colors: [
-                                                      Color(0xFFFBAD33),
-                                                      Color(0xFFF2653A),
-                                                    ],
-                                                  ),
-                                                ),
-                                                child: SizedBox(
-                                                  width: 200,
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                        CrossAxisAlignment
-                                                            .start,
-                                                    children: [
-                                                      Text(
-                                                        widget.userModel
-                                                            .fullname
-                                                            .toString(),
-                                                        style: const TextStyle(
-                                                            fontSize: 10,
-                                                            fontStyle:
-                                                                FontStyle
-                                                                    .italic,
-                                                            color: Colors
-                                                                .white),
-                                                      ),
-                                                      SizedBox(height: 5),
-                                                      Text(
-                                                        currentMessage.text
-                                                            .toString(),
-                                                        style: const TextStyle(
-                                                            color: Colors
-                                                                .white,
-                                                            fontSize: 16,
-                                                            fontWeight:
-                                                                FontWeight
-                                                                    .w600),
-                                                      ),
-                                                      SizedBox(height: 5),
-                                                      Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .end,
-                                                        children: [
-                                                          Text(
-                                                            currentMessage
-                                                                .createdon
-                                                                .toString(),
-                                                            style: const TextStyle(
-                                                                color: Colors
-                                                                    .white,
-                                                                fontSize:
-                                                                    10,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .w600),
+                                            ? InkWell(
+                                                onLongPress: () {
+                                                  print("LongPress");
+                                                  showDialog(
+                                                    context: context,
+                                                    builder: (context) {
+                                                      return AlertDialog(
+                                                        title: Text("Delete Message?"),
+                                                        actions: [
+                                                          Row(
+                                                            mainAxisAlignment:
+                                                                MainAxisAlignment
+                                                                    .spaceAround,
+                                                            children: [
+                                                              ElevatedButton(
+                                                                onPressed: () {
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                },
+                                                                child:
+                                                                    const Text(
+                                                                  "Cancel",
+                                                                ),
+                                                              ),
+                                                              ElevatedButton(
+                                                                onPressed: () {
+                                                                  Navigator.pop(
+                                                                      context);
+                                                                  FirebaseFirestore
+                                                                      .instance
+                                                                      .collection("chatrooms")
+                                                                      .doc(widget.chatroom.chatroomid)
+                                                                      .collection("messages")
+                                                                      .doc(currentMessage.messageid.toString())
+                                                                      .delete();
+                                                                },
+                                                                child: const Text(
+                                                                  "Delete",
+                                                                ),
+                                                              ),
+                                                            ],
                                                           ),
                                                         ],
-                                                      ),
-                                                    ],
+                                                      );
+                                                    },
+                                                  );
+                                                },
+                                                child: Container(
+                                                  margin: const EdgeInsets
+                                                      .symmetric(
+                                                    vertical: 2,
+                                                  ),
+                                                  padding: const EdgeInsets
+                                                      .symmetric(
+                                                    vertical: 10,
+                                                    horizontal: 10,
+                                                  ),
+                                                  decoration:
+                                                      const BoxDecoration(
+                                                    borderRadius:
+                                                        BorderRadius.only(
+                                                      topLeft:
+                                                          Radius.circular(6),
+                                                      topRight:
+                                                          Radius.circular(6),
+                                                      bottomLeft:
+                                                          Radius.circular(6),
+                                                    ),
+                                                    gradient: LinearGradient(
+                                                      colors: [
+                                                        Color(0xFFFBAD33),
+                                                        Color(0xFFF2653A),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  child: SizedBox(
+                                                    width: 200,
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                      children: [
+                                                        Text(
+                                                          widget.userModel
+                                                              .fullname
+                                                              .toString(),
+                                                          style: const TextStyle(
+                                                              fontSize: 10,
+                                                              fontStyle:
+                                                                  FontStyle
+                                                                      .italic,
+                                                              color:
+                                                                  Colors.white),
+                                                        ),
+                                                        SizedBox(height: 5),
+                                                        Text(
+                                                          currentMessage.text
+                                                              .toString(),
+                                                          style: const TextStyle(
+                                                              color:
+                                                                  Colors.white,
+                                                              fontSize: 16,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600),
+                                                        ),
+                                                        SizedBox(height: 5),
+                                                        Row(
+                                                          mainAxisAlignment:
+                                                              MainAxisAlignment
+                                                                  .end,
+                                                          children: [
+                                                            Text(
+                                                              currentMessage
+                                                                  .createdon!
+                                                                  .hour
+                                                                  .toString(),
+                                                              style: const TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontSize: 10,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600),
+                                                            ),
+                                                            Text(
+                                                              ":${currentMessage.createdon!.minute}",
+                                                              style: const TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                  fontSize: 10,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w600),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
                                                   ),
                                                 ),
                                               )
                                             : Container(
                                                 width: 200,
-                                                margin: const EdgeInsets
-                                                    .symmetric(
+                                                margin:
+                                                    const EdgeInsets.symmetric(
                                                   vertical: 2,
                                                 ),
-                                                padding: const EdgeInsets
-                                                    .symmetric(
+                                                padding:
+                                                    const EdgeInsets.symmetric(
                                                   vertical: 10,
                                                   horizontal: 10,
                                                 ),
-                                                decoration:
-                                                    const BoxDecoration(
+                                                decoration: const BoxDecoration(
                                                   color: Colors.white,
                                                   borderRadius:
                                                       BorderRadius.only(
-                                                    topLeft:
-                                                        Radius.circular(6),
+                                                    topLeft: Radius.circular(6),
                                                     topRight:
                                                         Radius.circular(6),
                                                     bottomRight:
@@ -271,20 +346,16 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                                                 ),
                                                 child: Column(
                                                   crossAxisAlignment:
-                                                      CrossAxisAlignment
-                                                          .start,
+                                                      CrossAxisAlignment.start,
                                                   children: [
                                                     Text(
-                                                      widget.targetUser
-                                                          .fullname
+                                                      widget.targetUser.fullname
                                                           .toString(),
                                                       style: const TextStyle(
                                                           fontSize: 10,
                                                           fontStyle:
-                                                              FontStyle
-                                                                  .italic,
-                                                          color:
-                                                              Colors.black),
+                                                              FontStyle.italic,
+                                                          color: Colors.black),
                                                     ),
                                                     SizedBox(height: 5),
                                                     Text(
@@ -292,26 +363,23 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                                                           .toString(),
                                                       maxLines: 100,
                                                       style: const TextStyle(
-                                                          color:
-                                                              Colors.black,
+                                                          color: Colors.black,
                                                           fontSize: 16,
                                                           fontWeight:
-                                                              FontWeight
-                                                                  .w600),
+                                                              FontWeight.w600),
                                                     ),
                                                     SizedBox(height: 5),
                                                     Row(
                                                       mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .end,
+                                                          MainAxisAlignment.end,
                                                       children: [
                                                         Text(
                                                           currentMessage
                                                               .createdon
                                                               .toString(),
                                                           style: const TextStyle(
-                                                              color: Colors
-                                                                  .black,
+                                                              color:
+                                                                  Colors.black,
                                                               fontSize: 10,
                                                               fontWeight:
                                                                   FontWeight
@@ -397,11 +465,34 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
         ),
       );
 
+  /* void selectImage(ImageSource source) async {
+    XFile? pickFile = await ImagePicker().pickImage(source: source);
+    if (pickFile != null) {
+      cropImage(pickFile);
+    }
+  }
+
+  void cropImage(XFile file) async {
+    CroppedFile? cropImage = await ImageCropper().cropImage(
+        sourcePath: file.path,
+        aspectRatio: CropAspectRatio(ratioX: 1, ratioY: 1),
+        compressQuality: 20);
+
+    if (cropImage != null) {
+      setState(() {
+        imageFile = File(cropImage.path);
+      });
+    }
+  }*/
+
   Widget attachmentButton({required BuildContext context}) {
     return Material(
       color: Colors.transparent,
       child: IconButton(
-        onPressed: () {},
+        onPressed: () {
+          // Navigator.pop(context);
+          // selectImage(ImageSource.gallery);
+        },
         color: Colors.black,
         icon: const Icon(Icons.attach_file, size: 18),
         splashRadius: 20,

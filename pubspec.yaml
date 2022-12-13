@@ -43,7 +43,10 @@ dependencies:
   image_picker: ^0.8.6
   image_cropper: ^3.0.1
   uuid: ^3.0.7
+  google_sign_in: ^5.4.0
   lottie: ^1.4.2
+  readmore: ^2.2.0
+  animated_button_bar: ^0.0.2
 
 dev_dependencies:
   flutter_test:
@@ -61,16 +64,9 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
-
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
   uses-material-design: true
-
-  # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
-  #   - images/a_dot_ham.jpeg
+  assets:
+    - google .png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

@@ -51,6 +51,7 @@ class _SearchPageState extends State<SearchPage> {
           widget.userModel.uid.toString(): true,
           targetUser.uid.toString(): true,
         },
+        dateTime: DateTime.now()
       );
 
       await FirebaseFirestore.instance
@@ -80,7 +81,7 @@ class _SearchPageState extends State<SearchPage> {
               ),
               child: Column(
                 children: [
-                  SizedBox(height: 140),
+                  const SizedBox(height: 140),
                   StreamBuilder(
                       stream: FirebaseFirestore.instance
                           .collection("users")

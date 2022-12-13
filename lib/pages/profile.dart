@@ -3,8 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_chat/modals/userModel.dart';
 import 'package:firebase_chat/pages/home_page.dart';
+import 'package:firebase_chat/pages/login.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
@@ -34,8 +34,9 @@ class _ProfilePageState extends State<ProfilePage> {
 
   void cropImage(XFile file) async {
     CroppedFile? cropImage = await ImageCropper().cropImage(
-      sourcePath: file.path,
-    );
+        sourcePath: file.path,
+        aspectRatio: const CropAspectRatio(ratioX: 1, ratioY: 1),
+        compressQuality: 20);
 
     if (cropImage != null) {
       setState(() {
@@ -165,8 +166,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   CircleAvatar(
                     radius: 60,
                     backgroundImage: imageFile == null
-                        ? NetworkImage(
-                            widget.userModel.profilepic.toString())
+                        ? NetworkImage(widget.userModel.profilepic.toString())
                         : FileImage(imageFile!) as ImageProvider,
                   ),
                   Padding(
@@ -178,10 +178,44 @@ class _ProfilePageState extends State<ProfilePage> {
               const SizedBox(height: 30),
               TextField(
                 controller: fullNameController,
-                decoration: const InputDecoration(labelText: "Full Name"),
+                decoration: const InputDecoration(
+                  labelText: "Full Name",
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(width: 2, color: Colors.grey),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(width: 2, color: Colors.tealAccent),
+                  ),
+                ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(
+                height: 10,
+              ),
+              Container(
+                width: 350,
+                height: 60,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(5),
+                  border: const Border(
+                    bottom: BorderSide(width: 2, color: Colors.grey),
+                    right: BorderSide(width: 2, color: Colors.grey),
+                    top: BorderSide(width: 2, color: Colors.grey),
+                    left: BorderSide(width: 2, color: Colors.grey),
+                  ),
+                ),
+                child: Center(
+                  child: Text(
+                    widget.userModel.email.toString(),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 16,fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 50),
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  minimumSize: const Size(350, 40),
+                ),
                 onPressed: () {
                   checkValues();
                 },
@@ -190,6 +224,23 @@ class _ProfilePageState extends State<ProfilePage> {
             ],
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        heroTag: null,
+        onPressed: () async {
+          await FirebaseAuth.instance.signOut();
+          // ignore: use_build_context_synchronously
+          Navigator.popUntil(context, (route) => route.isFirst);
+          //Navigator.popUntil(context, (route) => route.isCurrent);
+          // ignore: use_build_context_synchronously
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) {
+              return const LoginPage();
+            }),
+          );
+        },
+        child: const Icon(Icons.logout),
       ),
     );
   }
@@ -209,7 +260,7 @@ class _ProfilePageState extends State<ProfilePage> {
           borderRadius: BorderRadius.circular(25),
         ),
         child: IconButton(
-          splashRadius: 20,
+            splashRadius: 20,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.transparent,
               shadowColor: Colors.transparent,

@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:animated_button_bar/animated_button_bar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_chat/modals/chat_room_modal.dart';
@@ -25,6 +26,27 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      bottomNavigationBar: SizedBox(
+        height: 80,
+        child: AnimatedButtonBar(
+          borderColor: Colors.tealAccent,
+          borderWidth: 2,
+          backgroundColor: Colors.grey,
+          foregroundColor: Colors.tealAccent,
+          radius: 8.0,
+          padding: const EdgeInsets.all(16.0),
+          animationDuration: const Duration(seconds: 1),
+          invertedSelection: true,
+          children: [
+            ButtonBarEntry(
+                onTap: () => print('Home item tapped'),
+                child: const Text('Home')),
+            ButtonBarEntry(
+                onTap: () => print('Chat item tapped'),
+                child: const Text('Chat'))
+          ],
+        ),
+      ),
       backgroundColor: Colors.black.withOpacity(.2),
       body: Stack(
         children: [
@@ -68,78 +90,230 @@ class _MyHomePageState extends State<MyHomePage> {
                                   return Padding(
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 10, vertical: 5),
-                                    child: ListTile(
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(5),
-                                          side: const BorderSide(
-                                              width: 2,
-                                              color: Colors.tealAccent)),
-                                      tileColor: Theme.of(context)
-                                          .colorScheme
-                                          .onBackground
-                                          .withOpacity(0.5),
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(builder: (context) {
-                                            return ChatRoomPage(
-                                              chatroom: chatRoomModel,
-                                              firebaseUser: widget.firebaseUser,
-                                              userModel: widget.userModel,
-                                              targetUser: targetUser,
+                                    child: InkWell(
+                                      onLongPress: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return AlertDialog(
+                                              title: Column(
+                                                children: [
+                                                  const Text(
+                                                    "Delete",
+                                                    style: TextStyle(
+                                                      fontSize: 24,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 10),
+                                                  Row(
+                                                    children: [
+                                                      Container(
+                                                        height: 70,
+                                                        width: 70,
+                                                        decoration:
+                                                            BoxDecoration(
+                                                                image:
+                                                                    DecorationImage(
+                                                          image: NetworkImage(
+                                                              targetUser
+                                                                  .profilepic
+                                                                  .toString()),
+                                                        )),
+                                                      ),
+                                                      const SizedBox(width: 10),
+                                                      Text(
+                                                        targetUser.fullname
+                                                            .toString(),
+                                                        style: const TextStyle(
+                                                          color: Colors.black,
+                                                          fontSize: 18,
+                                                          fontWeight:
+                                                              FontWeight.w600,
+                                                          fontStyle:
+                                                              FontStyle.italic,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                              actions: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment
+                                                          .spaceAround,
+                                                  children: [
+                                                    ElevatedButton(
+                                                      onPressed: () {
+                                                        Navigator.pop(context);
+                                                      },
+                                                      child:
+                                                          const Text("Cancel"),
+                                                    ),
+                                                    ElevatedButton(
+                                                      onPressed: () {
+                                                        Navigator.pop(context);
+                                                        FirebaseFirestore
+                                                            .instance
+                                                            .collection(
+                                                                "chatrooms")
+                                                            .doc(chatRoomModel
+                                                                .chatroomid)
+                                                            .delete();
+                                                      },
+                                                      child:
+                                                          const Text("Delete"),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
                                             );
-                                          }),
+                                          },
                                         );
                                       },
-                                      leading: InkWell(
+                                      child: ListTile(
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                            side: const BorderSide(
+                                                width: 2,
+                                                color: Colors.tealAccent)),
+                                        tileColor: Theme.of(context)
+                                            .colorScheme
+                                            .onBackground
+                                            .withOpacity(0.5),
                                         onTap: () {
-                                          showDialog(
-                                            builder: (context) => AlertDialog(
-                                              title: Image(
-                                                image: NetworkImage(
-                                                  targetUser.profilepic
-                                                      .toString(),
-                                                ),
-                                              ),
-                                            ),
-                                            useRootNavigator: false,
-                                            context: context,
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                                builder: (context) {
+                                              return ChatRoomPage(
+                                                chatroom: chatRoomModel,
+                                                firebaseUser:
+                                                    widget.firebaseUser,
+                                                userModel: widget.userModel,
+                                                targetUser: targetUser,
+                                              );
+                                            }),
                                           );
                                         },
-                                        child: SizedBox(
-                                          height: 55,
-                                          width: 55,
-                                          child: CircleAvatar(
-                                            backgroundImage: NetworkImage(
-                                                targetUser.profilepic
-                                                    .toString()),
+                                        leading: InkWell(
+                                          onTap: () {
+                                            showDialog(
+                                              builder: (context) => AlertDialog(
+                                                title: Image(
+                                                  image: NetworkImage(
+                                                    targetUser.profilepic
+                                                        .toString(),
+                                                  ),
+                                                ),
+                                              ),
+                                              useRootNavigator: false,
+                                              context: context,
+                                            );
+                                          },
+                                          child: SizedBox(
+                                            height: 55,
+                                            width: 55,
+                                            child: CircleAvatar(
+                                              backgroundImage: NetworkImage(
+                                                  targetUser.profilepic
+                                                      .toString()),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                      title: Text(
-                                        targetUser.fullname.toString(),
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w600,
-                                          fontStyle: FontStyle.italic,
+                                        title: Text(
+                                          targetUser.fullname.toString(),
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w600,
+                                            fontStyle: FontStyle.italic,
+                                          ),
+                                        ),
+                                        subtitle: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            (chatRoomModel.lastMessage
+                                                        .toString() !=
+                                                    "")
+                                                ? Expanded(
+                                                    flex: 3,
+                                                    child: Text(
+                                                      chatRoomModel.lastMessage
+                                                          .toString(),
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: const TextStyle(
+                                                          color: Colors.white),
+                                                    ),
+                                                  )
+                                                : const Text(
+                                                    "Say hi to your new friend!",
+                                                    style: TextStyle(
+                                                        color: Colors.white),
+                                                  ),
+                                            Expanded(
+                                              flex: 1,
+                                              child: Row(
+                                                children: [
+                                                  (chatRoomModel.lastMessage
+                                                              .toString() !=
+                                                          "")
+                                                      ? Text(
+                                                          chatRoomModel
+                                                              .dateTime!.hour
+                                                              .toString(),
+                                                          style:
+                                                              const TextStyle(
+                                                                  color: Colors
+                                                                      .white),
+                                                        )
+                                                      : const Text(
+                                                          "",
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.white),
+                                                        ),
+                                                  (chatRoomModel.lastMessage
+                                                              .toString() !=
+                                                          "")
+                                                      ? Text(
+                                                          ":${chatRoomModel.dateTime!.minute}",
+                                                          style:
+                                                              const TextStyle(
+                                                                  color: Colors
+                                                                      .white),
+                                                        )
+                                                      : const Text(
+                                                          "",
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.white),
+                                                        ),
+                                                  (chatRoomModel.lastMessage
+                                                              .toString() !=
+                                                          "")
+                                                      ? Text(
+                                                          ":${chatRoomModel.dateTime!.second}",
+                                                          style:
+                                                              const TextStyle(
+                                                                  color: Colors
+                                                                      .white),
+                                                        )
+                                                      : const Text(
+                                                          "",
+                                                          style: TextStyle(
+                                                              color:
+                                                                  Colors.white),
+                                                        ),
+                                                ],
+                                              ),
+                                            )
+                                          ],
                                         ),
                                       ),
-                                      subtitle: (chatRoomModel.lastMessage
-                                                  .toString() !=
-                                              "")
-                                          ? Text(
-                                              chatRoomModel.lastMessage
-                                                  .toString(),
-                                              style: const TextStyle(
-                                                  color: Colors.white),
-                                            )
-                                          : const Text(
-                                              "Say hi to your new friend!",
-                                              style: TextStyle(
-                                                  color: Colors.white),
-                                            ),
                                     ),
                                   );
                                 } else {
@@ -308,7 +482,9 @@ class _MyHomePageState extends State<MyHomePage> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(25),
       ),
-      child: LottieBuilder.network('https://raw.githubusercontent.com/xvrh/lottie-flutter/master/example/assets/Mobilo/A.json',repeat: true),
+      child: LottieBuilder.network(
+          'https://raw.githubusercontent.com/xvrh/lottie-flutter/master/example/assets/Mobilo/A.json',
+          repeat: true),
     );
   }
 

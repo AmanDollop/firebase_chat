@@ -23,8 +23,11 @@ class _LoginPageState extends State<LoginPage> {
     if (email == "" || password == "") {
       var snackBar = SnackBar(
         elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        content: const Text("::::::::::::::::::::Please fill all the fields!"),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+          side: const BorderSide(color: Colors.grey, width: 3),
+        ),
+        content: const Text("Please fill all the fields!"),
         margin: const EdgeInsets.only(left: 10, right: 10),
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
@@ -63,15 +66,20 @@ class _LoginPageState extends State<LoginPage> {
           UserModel.fromMap(userData.data() as Map<String, dynamic>);
       var snackBar = SnackBar(
         elevation: 2,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+          side: const BorderSide(color: Colors.grey, width: 3),
+        ),
         content: const Text('Log In Successful@!'),
         margin: const EdgeInsets.only(left: 10, right: 10),
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
       );
+      // ignore: use_build_context_synchronously
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
       print('Log In Successful@!');
+      // ignore: use_build_context_synchronously
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -98,21 +106,42 @@ class _LoginPageState extends State<LoginPage> {
                 children: [
                   const Text(
                     "My Chat App",
-                    style: TextStyle(fontSize: 40, color: Colors.black),
+                    style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.black,
+                        fontStyle: FontStyle.italic),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 30),
                   TextField(
                     controller: emailController,
-                    decoration:
-                        const InputDecoration(labelText: "Email Address"),
+                    decoration: const InputDecoration(
+                      labelText: "Email Address",
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(width: 2, color: Colors.grey),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide:
+                            BorderSide(width: 2, color: Colors.tealAccent),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 5),
                   TextField(
                     controller: passwordController,
                     obscureText: true,
-                    decoration: const InputDecoration(labelText: "Password"),
+                    decoration: const InputDecoration(
+                      labelText: "Password",
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(width: 2, color: Colors.grey),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide:
+                            BorderSide(width: 2, color: Colors.tealAccent),
+                      ),
+                    ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 30),
                   SizedBox(
                     width: 300,
                     child: ElevatedButton(
