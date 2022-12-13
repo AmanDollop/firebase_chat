@@ -76,10 +76,11 @@ class _TargetUserProfileViewState extends State<TargetUserProfileView> {
                     top: BorderSide(color: Colors.tealAccent, width: 3),
                     right: BorderSide(color: Colors.tealAccent, width: 3)),
                 image: DecorationImage(
-                    image: NetworkImage(
-                      widget.targetUser.profilepic.toString(),
-                    ),
-                    fit: BoxFit.cover),
+                  image: NetworkImage(
+                    widget.targetUser.profilepic.toString(),
+                  ),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
           ),
