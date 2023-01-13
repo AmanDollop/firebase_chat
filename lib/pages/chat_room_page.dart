@@ -153,20 +153,16 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                           .orderBy("createdon", descending: true)
                           .snapshots(),
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.active) {
+                        if (snapshot.connectionState == ConnectionState.active) {
                           if (snapshot.hasData) {
-                            QuerySnapshot dataSnapshot =
-                                snapshot.data as QuerySnapshot;
+                            QuerySnapshot dataSnapshot = snapshot.data as QuerySnapshot;
 
                             return ListView.builder(
                               reverse: true,
                               itemCount: dataSnapshot.docs.length,
                               itemBuilder: (context, index) {
                                 MessageModel currentMessage =
-                                    MessageModel.fromMap(
-                                        dataSnapshot.docs[index].data()
-                                            as Map<String, dynamic>);
+                                    MessageModel.fromMap(dataSnapshot.docs[index].data() as Map<String, dynamic>);
 
                                 return Column(
                                   children: [
@@ -187,7 +183,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                                                     context: context,
                                                     builder: (context) {
                                                       return AlertDialog(
-                                                        title: Text("Delete Message?"),
+                                                        title: const Text("Delete Message?"),
                                                         actions: [
                                                           Row(
                                                             mainAxisAlignment:
@@ -357,7 +353,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                                                               FontStyle.italic,
                                                           color: Colors.black),
                                                     ),
-                                                    SizedBox(height: 5),
+                                                    const SizedBox(height: 5),
                                                     Text(
                                                       currentMessage.text
                                                           .toString(),
@@ -368,7 +364,7 @@ class _ChatRoomPageState extends State<ChatRoomPage> {
                                                           fontWeight:
                                                               FontWeight.w600),
                                                     ),
-                                                    SizedBox(height: 5),
+                                                    const SizedBox(height: 5),
                                                     Row(
                                                       mainAxisAlignment:
                                                           MainAxisAlignment.end,
